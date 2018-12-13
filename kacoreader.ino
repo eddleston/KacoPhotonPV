@@ -85,25 +85,25 @@ SYSTEM_THREAD(ENABLED);
 
 class PowerReading
 {
-	time_t _timeOfReading = Time.now();
-	int _dailyRunTime = 0;
-	int _operatingState = 0;
-	float _generatorVoltage = 0.0;
-	float _generatorCurrent = 0.0;
-	float _generatorPower = 0.0;
-	float _lineVoltage = 0.0;
-	float _lineCurrentFeedIn = 0.0;
-	float _powerFeedIn = 0.0;
-	float _unitTemperature = 0.0;
+    time_t _timeOfReading = Time.now();
+    int _dailyRunTime = 0;
+    int _operatingState = 0;
+    float _generatorVoltage = 0.0;
+    float _generatorCurrent = 0.0;
+    float _generatorPower = 0.0;
+    float _lineVoltage = 0.0;
+    float _lineCurrentFeedIn = 0.0;
+    float _powerFeedIn = 0.0;
+    float _unitTemperature = 0.0;
 
-	public:
-	
-	PowerReading() { }
+    public:
+    
+    PowerReading() { }
 	
     PowerReading (time_t timeOfReading, int dailyRunTime, int operatingState,
                   float generatorVoltage, float generatorCurrent, float generatorPower, 
                   float lineVoltage, float lineCurrentFeedIn, float powerFeedIn, float unitTemperature)
-	{
+    {
         _timeOfReading = timeOfReading;
         _dailyRunTime = dailyRunTime;
         _operatingState = operatingState;
@@ -114,10 +114,10 @@ class PowerReading
         _lineCurrentFeedIn = lineCurrentFeedIn;
         _powerFeedIn = powerFeedIn;
         _unitTemperature = unitTemperature;
-	}
+    }
 	
-	time_t timeOfReading()
-	{
+    time_t timeOfReading()
+    {
         return _timeOfReading;
     }
  
@@ -144,56 +144,57 @@ class PowerReading
 
 class PowerReadingList
 {
-	std::list<PowerReading> _powerReadingList;
-	float _avgGeneratedPower = 0.0;
-	float _avgGeneratedVoltage = 0.0;
-	float _avgGeneratedCurrent = 0.0;
-	int _totalReadings = 0;
+    std::list<PowerReading> _powerReadingList;
+    float _avgGeneratedPower = 0.0;
+    float _avgGeneratedVoltage = 0.0;
+    float _avgGeneratedCurrent = 0.0;
+    int _totalReadings = 0;
 	
-	public:
+    public:
 	
-	PowerReadingList() { }
+    PowerReadingList() { }
 	
-	void addReading(PowerReading powerReading)
-	{
-		_powerReadingList.push_back(powerReading);
-		_totalReadings++;
+    void addReading(PowerReading powerReading)
+    {
+        _powerReadingList.push_back(powerReading);
+        _totalReadings++;
 		
-		// new average = old average + ((new value - old average) / new number of readings)
-		_avgGeneratedPower = _avgGeneratedPower + ((powerReading.generatedPower() - _avgGeneratedPower) / _totalReadings);
-		_avgGeneratedVoltage = _avgGeneratedVoltage + ((powerReading.generatedVoltage() - _avgGeneratedVoltage) / _totalReadings);
-		_avgGeneratedCurrent = _avgGeneratedCurrent + ((powerReading.generatedCurrent() - _avgGeneratedCurrent) / _totalReadings);
-	}
+        // new average = old average + ((new value - old average) / new number of readings)
+        _avgGeneratedPower = _avgGeneratedPower + ((powerReading.generatedPower() - _avgGeneratedPower) / _totalReadings);
+        _avgGeneratedVoltage = _avgGeneratedVoltage + ((powerReading.generatedVoltage() - _avgGeneratedVoltage) / _totalReadings);
+        _avgGeneratedCurrent = _avgGeneratedCurrent + ((powerReading.generatedCurrent() - _avgGeneratedCurrent) / _totalReadings);
+    }
 	
-	void clear()
-	{
-		_powerReadingList.clear();
-		_avgGeneratedPower = 0.0;
-		_avgGeneratedVoltage = 0.0;
-		_avgGeneratedCurrent = 0.0;
-		_totalReadings = 0;
-	}
+    void clear()
+    {
+        _powerReadingList.clear();
+        _avgGeneratedPower = 0.0;
+        _avgGeneratedVoltage = 0.0;
+        _avgGeneratedCurrent = 0.0;
+        _totalReadings = 0;
+    }
 	
-	float averageGeneratedPower() 
-	{
-		return _avgGeneratedPower;
-	}
+    float averageGeneratedPower() 
+    {
+        return _avgGeneratedPower;
+    }
 
-	float averageGeneratedVoltage() 
-	{
-		return _avgGeneratedVoltage;
-	}
+    float averageGeneratedVoltage() 
+    {
+        return _avgGeneratedVoltage;
+    }
 
-	float averageGeneratedCurrent() 
-	{
-		return _avgGeneratedCurrent;
-	}
+    float averageGeneratedCurrent() 
+    {
+        return _avgGeneratedCurrent;
+    }
 };
 
 PowerReadingList powerReadingList;
 
-void setup() {
-	Serial1.begin(9600, SERIAL_DATA_BITS_8 | SERIAL_STOP_BITS_1 | SERIAL_PARITY_NO | SERIAL_FLOW_CONTROL_NONE);
+void setup()
+{
+    Serial1.begin(9600, SERIAL_DATA_BITS_8 | SERIAL_STOP_BITS_1 | SERIAL_PARITY_NO | SERIAL_FLOW_CONTROL_NONE);
 }
 
 void postPVstatus(time_t timeOfReading, float energyGen, float powerGen, 
@@ -212,28 +213,28 @@ void postPVstatus(time_t timeOfReading, float energyGen, float powerGen,
                                     temp, 
                                     volts);
 
-	Particle.publish(LOCAL_TESTING + "PVStatus", params);
+    Particle.publish(LOCAL_TESTING + "PVStatus", params);
 }
 
 void addReading(PowerReading newPowerReading)
 {
     time_t timeNow = Time.now();
     dailyEnergy += (newPowerReading.generatedPower() * SAMPLE_TIME);
-	powerReadingList.addReading(newPowerReading);
+    powerReadingList.addReading(newPowerReading);
 	
     if ((Time.minute(timeNow) % PVO_STATUS_INTERVAL == 0) && (Time.minute(lastStatus) != Time.minute(timeNow)))
     {
         postPVstatus(timeNow, 
-					 dailyEnergy, 
-					 powerReadingList.averageGeneratedPower(), 
-					 0, 
-					 0, 
-					 newPowerReading.temperature(), 
-					 powerReadingList.averageGeneratedVoltage());
+	             dailyEnergy, 
+                     powerReadingList.averageGeneratedPower(), 
+                     0, 
+                     0, 
+                     newPowerReading.temperature(), 
+                     powerReadingList.averageGeneratedVoltage());
      
         lastStatus = timeNow;
 		
-		powerReadingList.clear();
+        powerReadingList.clear();
     }
 
     if ((timeNow > PV_DAILY_UPLOAD_TIME) && (Time.day(timeNow) != Time.day(lastOutput)))
@@ -265,7 +266,6 @@ void processReading() {
 
     serialData = String(sData);
 
-    //serialData = String(readBuf);
     if (serialData != "")
         Particle.publish(LOCAL_TESTING + "Solar_Update", serialData);
 
@@ -286,52 +286,52 @@ void processReading() {
 }
 
 void loop() {
-	if (LOCAL_TESTING == "Test")
-	{
-		test();
-	}
-	else
-	{
-		if (millis() - lastSend >= SEND_INTERVAL_MS) {
-			lastSend = millis();
+    if (LOCAL_TESTING == "Test")
+    {
+        test();
+    }
+    else
+    {
+        if (millis() - lastSend >= SEND_INTERVAL_MS) {
+            lastSend = millis();
 
-			// Read data from serial
-			while(Serial1.available()) {
-				if (readBufOffset < READ_BUF_SIZE) {
-					char c = Serial1.read();
-					if (c != '\r' && c != '\n') {
-						// Add character to buffer
-						readBuf[readBufOffset++] = c;
-					}
-					else {
-						// End of line character found, process line
-						readBuf[readBufOffset++] = 0;
-						processReading();
-						readBufOffset = 0;
-					}
-				}
-				else {
-					Particle.publish("readBuf overflow, emptying buffer");
-					readBufOffset = 0;
-				}
-			}
-		}
-	}
+            // Read data from serial
+            while(Serial1.available()) {
+                if (readBufOffset < READ_BUF_SIZE) {
+                    char c = Serial1.read();
+                    if (c != '\r' && c != '\n') {
+                        // Add character to buffer
+                        readBuf[readBufOffset++] = c;
+                    }
+                    else {
+                        // End of line character found, process line
+                        readBuf[readBufOffset++] = 0;
+                        processReading();
+                        readBufOffset = 0;
+                    }
+                }
+                else {
+                    Particle.publish("readBuf overflow, emptying buffer");
+                    readBufOffset = 0;
+                }
+            }
+        }
+    }
 }
 
 void test() {
-	String readings[80] = {
-		"00.00.0000 00.00 3 170.0 180.0 80 150.0 200.0 50",
-		"00.00.0000 00.00 3 180.0 190.0 90 160.0 210.0 60",
-		"00.00.0000 00.00 3 190.0 200.0 100 170.0 220.0 70",
-		"00.00.0000 00.00 3 200.0 210.0 110 180.0 230.0 80",
-		"00.00.0000 00.00 3 210.0 220.0 120 190.0 240.0 90"
-	};
+    String readings[80] = {
+        "00.00.0000 00.00 3 170.0 180.0 80 150.0 200.0 50",
+        "00.00.0000 00.00 3 180.0 190.0 90 160.0 210.0 60",
+        "00.00.0000 00.00 3 190.0 200.0 100 170.0 220.0 70",
+        "00.00.0000 00.00 3 200.0 210.0 110 180.0 230.0 80",
+        "00.00.0000 00.00 3 210.0 220.0 120 190.0 240.0 90"
+    };
 	
-	for (int i = 0; i < 80; i++)
-	{		
-		strcpy(readBuf, readings[i % 5].c_str());
-		processReading();
-		delay(10000);
-	}
+    for (int i = 0; i < 80; i++)
+    {		
+        strcpy(readBuf, readings[i % 5].c_str());
+        processReading();
+        delay(10000);
+    }
 }
