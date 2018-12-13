@@ -4,7 +4,7 @@ Particle Photon code for reading solar PV values via serial RS232 from a Kaco in
 ## Set up instructions
 
 1. Buy a Particle Photon :smile:
-(image)
+https://amzn.to/2Lg97d0
 2. Buy a serial adapter for the Photon (e.g. https://amzn.to/2QMKJFo)
 (image)
 3. Use a breadboard to connect the Photon to the serial adapter
