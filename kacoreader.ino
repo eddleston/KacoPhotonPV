@@ -148,7 +148,7 @@ class PowerReadingList
     float _avgGeneratedPower = 0.0;
     float _avgGeneratedVoltage = 0.0;
     float _avgGeneratedCurrent = 0.0;
-    int _totalReadings = 0;
+    float _totalReadings = 0.0;
 	
     public:
 	
