@@ -194,6 +194,11 @@ PowerReadingList powerReadingList;
 
 void setup()
 {
+
+    if (Time.day(lastOutput) == 30 && Time.month(lastOutput) == 12 && Time.year(lastOutput) == 2018)
+    {
+        dailyEnergy = 0.591;
+    }
     Serial1.begin(9600, SERIAL_DATA_BITS_8 | SERIAL_STOP_BITS_1 | SERIAL_PARITY_NO | SERIAL_FLOW_CONTROL_NONE);
 }
 
@@ -237,7 +242,8 @@ void addReading(PowerReading newPowerReading)
         powerReadingList.clear();
     }
 
-    if ((timeNow > PV_DAILY_UPLOAD_TIME) && (Time.day(timeNow) != Time.day(lastOutput)))
+    if (   (Time.hour(timeNow) == PV_DAILY_UPLOAD_TIME_HOUR && Time.minute(timeNow) >= PV_DAILY_UPLOAD_TIME_MIN)
+        && (Time.day(timeNow) != Time.day(lastOutput)) )
     {
         lastOutput = timeNow;
         dailyEnergy = 0;        
